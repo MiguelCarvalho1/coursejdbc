@@ -1,5 +1,5 @@
 import db.DB;
-
+import db.DbIntegrityException;
 
 
 import java.sql.*;
@@ -8,11 +8,46 @@ import java.text.SimpleDateFormat;
 
 public class Main {
     public static void main(String[] args) {
-
         
 
 
+
         /*
+        //Demo de Eliminar dados.
+        // Declarar variáveis para conexão com o banco de dados e PreparedStatement
+        Connection conn = null;
+        PreparedStatement st = null;
+
+        try {
+            // Obter uma conexão com o banco de dados usando um método personalizado (DB.getConnection())
+            conn = DB.getConnection();
+
+            // Preparar uma instrução SQL para excluir um registro da tabela "department" onde o Id é igual a 5
+            st = conn.prepareStatement(
+                    "DELETE FROM department "
+                            + "WHERE "
+                            + "Id = ?");
+
+            // Definir o parâmetro da instrução SQL
+            st.setInt(1, 5); // Excluir o registro com Id igual a 5
+
+            // Executar a instrução SQL e obter o número de linhas afetadas
+            int rowsAffected = st.executeUpdate();
+
+            // Imprimir a mensagem indicando que a operação foi concluída e o número de linhas afetadas
+            System.out.println("Done! Rows Affected: " + rowsAffected);
+
+        } catch (SQLException e) {
+            // Lidar com exceções SQL, neste caso, lançar uma exceção personalizada (DbIntegrityException)
+            throw new DbIntegrityException(e.getMessage());
+
+        } finally {
+            // Fechar o PreparedStatement e a conexão com o banco de dados no bloco finally
+            DB.closeStatement(st);
+            DB.closeConnection();
+        }
+
+
         //Demo de Atualizar dados na base dados.
         // Declarar variáveis para conexão com o banco de dados e PreparedStatement
         Connection conn = null;
