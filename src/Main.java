@@ -1,4 +1,5 @@
 import db.DB;
+import db.DbException;
 import db.DbIntegrityException;
 
 
@@ -8,7 +9,59 @@ import java.text.SimpleDateFormat;
 
 public class Main {
     public static void main(String[] args) {
-        
+
+
+        //Demo de Transações.
+        // Declarar variáveis para conexão com o banco de dados e Statement
+        Connection conn = null;
+        Statement st = null;
+
+        try {
+            // Obter uma conexão com o banco de dados usando um método personalizado (DB.getConnection())
+            conn = DB.getConnection();
+
+            // Desativar o autocommit para permitir o controle manual da transação
+            conn.setAutoCommit(false);
+
+            // Criar um Statement para executar comandos SQL
+            st = conn.createStatement();
+
+            // Atualizar os salários base em duas operações de atualização diferentes
+            int rows1 = st.executeUpdate("UPDATE  seller SET BaseSalary = 2090 WHERE DepartmentID = 1");
+
+    /* Simular um erro durante a transação (comentado para evitar exceções)
+    int x = 1;
+    if (x < 2) {
+        throw new SQLException("Fake error");
+    }
+    */
+
+            int rows2 = st.executeUpdate("UPDATE  seller SET BaseSalary = 3090 WHERE DepartmentID = 2");
+
+            // Confirmar a transação se todas as operações foram bem-sucedidas
+            conn.commit();
+
+            // Imprimir o número de linhas afetadas em cada operação
+            System.out.println("Rows 1 = " + rows1);
+            System.out.println("Rows 2 = " + rows2);
+
+        } catch (SQLException e) {
+            // Lidar com exceções SQL durante a transação
+            try {
+                // Reverter a transação se ocorrer uma exceção
+                conn.rollback();
+                throw new DbException("Transaction rolled back! Caused by: " + e.getMessage());
+            } catch (SQLException e1) {
+                // Lidar com exceções ao tentar reverter a transação
+                throw new DbException("Error trying to rollback! Caused by: " + e1.getMessage());
+            }
+
+        } finally {
+            // Fechar o Statement e a conexão com o banco de dados no bloco finally
+            DB.closeStatement(st);
+            DB.closeConnection();
+        }
+
 
 
 
